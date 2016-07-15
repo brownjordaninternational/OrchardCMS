@@ -1,0 +1,8 @@
+﻿Name: Entiat Custom Settings
+AntiForgery: enabled
+Author: Brown Jordan International
+Version: 1.0
+OrchardVersion: 1.9.1
+Description: Custom Settings for Entiat Sites.
+Category:Entiat
+

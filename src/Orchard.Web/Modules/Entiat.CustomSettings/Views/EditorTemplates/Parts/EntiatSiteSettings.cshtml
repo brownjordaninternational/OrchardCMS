@@ -1,0 +1,130 @@
+﻿@using System.Web.Mvc.Html
+@model Entiat.CustomSettings.Models.EntiatSiteSettingsPart
+@{ Style.Include("settings.css");}
+<div id="entiatSettings">
+<fieldset>
+    <legend>Entiat Custom Settings</legend>
+    <div class="editor-label">Company</div>
+    <div class="editor-field">
+        @Html.DropDownListFor(x=>x.CompanyCode,
+                new SelectList(Model.companyList, "Code", "Name"),
+                "--Select--",
+                new { id = "company" })
+    </div>
+    <div class="editor-label">Channel</div>
+    <div class="editor-field">
+        @Html.DropDownListFor(
+      x => x.ChannelId,
+      new SelectList(Model.channelList,
+      "Id", "Name",
+      Model.ChannelId),
+      "--Select--",
+      new { id = "channel" }
+      )
+        @Html.ValidationMessageFor(x => x.ChannelId)
+    </div>
+    <div class="hint">Select Numeric Id associated with this site. If unknown, please contact IT Software for assistance.</div>
+    <br />
+    <div class="editor-label">CDN Url</div>
+    <div class="editor-field">
+        @Html.EditorFor(x => x.CDNImagesUrl)
+        @Html.ValidationMessageFor(x=>x.CDNImagesUrl)
+    </div>
+    <div class="hint">Enter base CDN URL. If unknown, please contact IT Software for assistance.</div>
+    <div class="editor-label">Enable Bootstrap?</div>
+    <div class="editor-field">@Html.CheckBoxFor(x=>x.IsMobile)</div>
+    <div class="hint">Please make sure to add bootstrap css and js files to head tag and to use appropriate bootstrap markup in content.</div>
+    <div class="editor-label">Use Amplience for Images?</div>
+    <div class="editor-field">@Html.CheckBoxFor(x=>x.EnableAmplience)</div>
+    <div class="editor-label">Enable Wishlist?</div>
+    <div class="editor-field">@Html.CheckBoxFor(x => x.EnableWishlist)</div>
+    <h3>Catalog Page Settings</h3>
+    <div class="editor-label">
+        Show Pager
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(x => x.ShowPager)
+    </div>
+    <div class="editor-label">
+        # of Products Per Row
+    </div>
+    <div class="editor-field">
+        @Html.DropDownListFor(x => x.ProductsPerRow, new SelectList(new[] { 4, 3 }, new[] { 4, 3 }))
+    </div>
+    <div class="editor-label">
+        Show Model #?
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(x => x.ShowModelNum)
+    </div>
+    <div class="editor-label">
+        Hide Part Name?
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(x=>x.HideProductName)
+    </div>
+
+    <div class="editor-label">
+        Group Products on Catalog Page By ProductGroup?
+    </div>
+    <div class="editor-field">
+        @Html.CheckBoxFor(x => x.GroupByProductGroup)
+    </div>
+    <div class="editor-label">
+        Order Products By:
+    </div>
+    <div class="editor-field">
+        <span>Product Name</span>
+        @Html.RadioButtonFor(x => x.ProductOrder, "NAME", new { @checked = "checked" })
+        <span>PartNumber</span>
+        @Html.RadioButtonFor(x => x.ProductOrder, "PARTNUMBER")
+    </div>
+    <h3>Product Page Settings</h3>
+        <div class="editor-label">
+            Show MSRP?
+        </div>
+        <div class="editor-field">
+            @Html.CheckBoxFor(x => x.ShowMSRP)
+        </div>
+        <div class="editor-label">
+            Show Option Dropdowns?
+        </div>
+        <div class="editor-field">
+            @Html.CheckBoxFor(x => x.ShowOptionDropdowns)
+        </div>
+    <h3>Social Media on Product Pages</h3>
+    <div class="editor-label">Facebook Url</div>
+    <div class="editor-field">@Html.TextBoxFor(x => x.Facebook, new { id = "fbUrl" })</div>
+    <div class="editor-label">Pinterest Url</div>
+    <div class="editor-field">@Html.TextBoxFor(x => x.Pinterest, new { id = "pinUrl" })</div>
+    <div class="editor-label">Twiiter Url</div>
+    <div class="editor-field">@Html.TextBoxFor(x => x.Twitter, new { id = "twitterUrl" })</div>
+    <div class="editor-label">Instagram Url</div>
+    <div class="editor-field">@Html.TextBoxFor(x => x.Instagram, new { id = "gramUrl" })</div>
+</fieldset>
+</div>
+@using (Script.Foot())
+{
+    <script type="text/javascript">
+    $("#company").on("change", function() {
+        var code = $(this).val();
+        if (code != "") {
+            var url = "@Url.Action("GetChannels", "Settings", new { area = "Entiat.CustomSettings" })";
+            $.get(url, { companycode: code}, function(data) {
+                if(data.length > 0)
+                {
+                    $("#channel").empty();
+                    $("#channel").append($('<option />', { value: "", html: "--Select--" }));
+                    $.each(data, function() {
+                        $("#channel").append(
+                        $('<option />', {
+                            value: this.Id,
+                            html: this.Name
+                        }))
+                    })
+                }
+            })
+        }
+    })
+    </script>
+}
