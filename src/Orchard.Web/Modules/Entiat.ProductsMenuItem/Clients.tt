@@ -1,0 +1,87 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<#
+    //**********************************************************************************************
+    // This T4 generates POCOs services.
+    //**********************************************************************************************
+
+	//***********************************************
+	// DEFINE VARIABLES
+	//***********************************************
+	// the destination folder for the generated classes, relative to this file's location.
+	string destinationFolder ="";
+
+	// create a collection of poco objects
+
+	var services = new[] {"BookOrd","Channel", "Customer", "Country", "Product", "Salesman", "Sku", "FreightCode", 
+						"ShipTo", "ShipVia", "HoldReason", "OrderType", "DiscountCode","Terms", "PriceList" };
+
+	foreach(string service in services)
+	{
+#>
+using Bj.Essentials.Entities;
+using Bjx.WCF.Contracts;
+using System;
+using System.Collections.Generic;
+using System.ServiceModel;
+
+namespace Bj.Essentials.Proxies
+{
+    public class <#= service #>Client : ClientBase<I<#= service #>Service>, I<#= service #>Service
+    {
+        public IEnumerable<<#= service #>> GetAll(string company)
+        {
+            return Channel.GetAll(company);
+        }
+        public <#= service #> Get(string company, int id)
+        {
+            return Channel.Get(company, id);
+        }
+        public IEnumerable<<#= service #>> GetByNum(string company, int num)
+        {
+            return Channel.GetByNum(company, num);
+        }
+		public <#= service #> GetByCode(string company, string code) 
+		{
+			return Channel.GetByCode(company, code);
+		}
+		public bool Update<#= service #>(<#= service #> entity)
+        {
+            return Channel.Update<#= service #>(entity);
+        }
+        public long Add<#= service #>(<#= service #> entity)
+        {
+            return Channel.Add<#= service #>(entity);
+        }
+		public bool Delete<#= service #>(<#= service #> entity)
+        {
+            return Channel.Delete<#= service #>(entity);
+        }
+    }
+}
+<#
+		// write the new poco class to its own file
+		SaveOutput(service + "Client.cs", destinationFolder);
+
+	}
+#>
+<#+
+	void SaveOutput(string outputFileName, string destinationFolder)
+    {
+        // Write to destination folder
+        string templateDirectory = Path.Combine(Path.GetDirectoryName(Host.TemplateFile), destinationFolder);
+        string outputFilePath = Path.Combine(templateDirectory, outputFileName);
+        File.Delete(outputFilePath);
+        File.WriteAllText(outputFilePath, this.GenerationEnvironment.ToString()); 
+ 
+        // Flush generation
+        this.GenerationEnvironment.Remove(0, this.GenerationEnvironment.Length);
+    }
+#>

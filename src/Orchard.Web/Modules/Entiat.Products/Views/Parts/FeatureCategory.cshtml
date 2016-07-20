@@ -1,0 +1,55 @@
+﻿@using Bj.Essentials.Entities;
+@using Entiat.CustomSettings.Models;
+@{ 
+    Style.Require("CustomCatalogStyle");
+}
+@{ 
+    Category category = (Category)Model.Category;
+    EntiatSiteSettingsPart settings = (EntiatSiteSettingsPart)Model.CustomSettings;
+}
+<div id="feature" class="row">
+    @if (category.FeatureDescription != null && category.FeatureImageName != null && category.FeatureDescription != "" && category.FeatureImageName != "")
+    {
+        <div class="col-2">
+            @if (category.FeatureTitle != null && category.FeatureTitle != "")
+            {<h1>@category.FeatureTitle</h1> }
+            <p>@category.FeatureDescription</p>
+        </div>
+        <div class="col-2">
+            <div class="img-wrapper">
+                @if (settings.EnableAmplience)
+                {
+                    <img src="@string.Format("{0}/{1}_cat_{2}_feature",settings.CDNImagesUrl, settings.ChannelId, category.Id)" alt="@category.Name" />
+                }
+                else
+                {
+                    <img src="@settings.CDNImagesUrl/channel/@settings.ChannelId/category/feature/@category.FeatureImageName" />
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div>
+            @if (category.FeatureTitle != null && category.FeatureTitle != "")
+            {<h1>@category.FeatureTitle</h1> }
+            @if (category.FeatureDescription != null && category.FeatureDescription != "")
+            {
+                <p>@category.FeatureDescription</p>
+            }
+            else if (category.FeatureImageName != null && category.FeatureImageName != "")
+            {
+                <div class="img-wrapper">
+                    @if (settings.EnableAmplience)
+                    {
+                        <img src="@string.Format("{0}/{1}_cat_{2}_feature",settings.CDNImagesUrl, settings.ChannelId, category.Id)" alt="@category.Name" />
+                    }
+                    else if()
+                    {
+                        <img src="@settings.CDNImagesUrl/channel/@settings.ChannelId/category/feature/@category.FeatureImageName" />
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>

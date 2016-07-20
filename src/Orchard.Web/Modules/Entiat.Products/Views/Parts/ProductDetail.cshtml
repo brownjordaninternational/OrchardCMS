@@ -1,0 +1,378 @@
+﻿@using Bj.Essentials.Entities;
+@using Entiat.CustomSettings.Models;
+@using Entiat.Products.Models;
+@using Entiat.Products.ViewModels;
+@{
+    EntiatSiteSettingsPart SiteSettings = (EntiatSiteSettingsPart)Model.CustomSettings;
+    IEnumerable<Image> altImages = Enumerable.Empty<Image>();
+    List<Image> collectionImages = new List<Image>();
+    if (!SiteSettings.EnableAmplience)
+    {
+        altImages = (IEnumerable<Image>)Model.AltImages;
+        collectionImages = (List<Image>)Model.CollectionImages;
+    }
+    ProductDetail detail = (ProductDetail)Model.ProductDetail;
+    Collection Collection = (Collection)Model.Collection;
+    Category Category = (Category)Model.Category;
+    List<OptionSection> Options = (List<OptionSection>)Model.Options;
+    Product product = (Product)Model.Product;
+    IEnumerable<ProductDocument> documents = (IEnumerable<ProductDocument>)Model.Documents;
+    Style.Include("productpage.css");
+}
+
+@using (Script.Foot())
+{
+    Script.Require("JQuery");
+    Script.Require("JQueryUI");
+    Script.Include("jquery.zoom.min.js");
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#main_image img')
+              .wrap('<span style="display:inline-block"></span>')
+              .css('display', 'block')
+              .parent()
+              .zoom({ magnify: 1, on: "click"});
+            });
+
+        $(function () {
+            var mainImg = $("#main_image img").attr("src");
+            $("#alt_images li img").hover(function () {
+                var hoveredImg = $(this).attr("src");
+                $("#main_image img").attr("src", hoveredImg);
+            }, function () {
+                $("#main_image img").attr("src", mainImg);
+            })
+        });
+        $(".productdata_accordion").on("click", function () {
+            if ($(this).children(".label").children().hasClass("expanded")) {
+                $(this).children(".content").hide();
+                $(this).children(".label").children(".expanded").removeClass("expanded").addClass("collapsed").text("+");
+            }
+            else {
+                $(this).children(".content").show();
+                $(this).children(".label").children(".collapsed").removeClass("collapsed").addClass("expanded").text("-");
+            }
+        });
+        $("select.optionselect").on("change", function (data) {
+            var selimg = $("option:selected", this).attr("src");
+            var id = "#sel_swatch_" + $(this).attr("id");
+            if (selimg != null) {
+                $(id).html("<img src=" + selimg + " />");
+            }
+            else {
+                $(id).html("");
+            }
+        });
+        $(".swatches li").on({
+            mouseenter: function () {
+                var imgSrc = $(this).find('img').prop("src");
+                $(this).find('img').attr("data-src", imgSrc);
+                var res = imgSrc.replace("/80x80", "");
+                res = res.replace("w=80", "w=200");
+                $(this).find('img').attr("src", res);
+            },
+            mouseleave: function () {
+                $(this).find('img').attr("src", $(this).find('img').attr("data-src"));
+            }
+        });
+   </script>
+}
+
+<div id="productpage">
+    <main>
+        <div id="content">
+            <div class="container">
+                <div class="col_1">
+                    <div id="main_image">
+                        @if (SiteSettings.EnableAmplience)
+                        {
+                            <img src="@string.Format("{0}/{1}_{2}.jpg?w=425",SiteSettings.CDNImagesUrl,SiteSettings.ChannelId,detail.cp.ID.ToString())" alt="@detail.cp.Name" />
+                            
+                        }
+                        else
+                        {
+                            if (detail.ImageUrl != null && detail.ImageUrl != "")
+                            {
+                                //replace main
+                                <img src="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/main/@detail.ImageUrl" />
+                            }
+                            else
+                            {
+                                <img src="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/main/placeholder.jpg" />
+                            }
+                            
+                        }
+                        
+                    </div>
+                    @if (SiteSettings.EnableAmplience)
+                    {
+                        <a href="" onclick="window.open('@string.Format("{0}/{1}_{2}.jpg", SiteSettings.CDNImagesUrl, SiteSettings.ChannelId, detail.cp.ID.ToString())');return false;" target="_blank"><img src="~/Modules/Entiat.Products/Styles/enlarge-icon.png?width=30" alt="Enlarge Image" title="Enlarge Image" /></a>
+                    }
+                    else
+                    {
+                        <a href="" onclick="window.open('@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/main/@detail.ImageUrl');return false;" target="_blank"><img src="~/Modules/Entiat.Products/Styles/enlarge-icon.png?width=30" alt="Enlarge Image" title="Enlarge Image" /></a>
+                    }
+                    @if (SiteSettings.EnableAmplience)
+                    {
+                        using (Script.Foot())
+                        {
+                            string set = string.Format("{0}_{1}_set", SiteSettings.ChannelId.ToString(), detail.cp.ID.ToString());
+                            <script type="text/javascript">
+                                var imageset = "@set";
+                                var contents = document.getElementById('alt_images');
+                                amp.get({ "name": imageset, "type": "s" }, function (data) {
+                                        amp.di.width(data[imageset], 190);
+                                        amp.genHTML(data[imageset], contents);
+                                });
+                            </script>
+                        }
+                        <div id="alt_images"></div>
+                    }
+                    else if (altImages.Count() > 0)
+                    {
+                        <div id="alt_images">
+                            <ul>
+                                @foreach (Image img in altImages)
+                                {
+                                    //replace alt
+                                    <li><img src="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/alt/@img.Url" /></li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                </div>
+                <div class="col_2">
+                    <div class="page_title"><h1>@detail.cp.Name</h1></div>
+
+                    <div class="modelnumber">Model Number:&nbsp;<span class="partnumber">@detail.cp.PartNumber</span></div>
+                    @if (Collection.Name!="" && Collection.Name!= null)
+                    {
+                        <div class="collection"><a href="~/collection/@Collection.Id">@Collection.Name</a></div>
+                    }
+                    @if (SiteSettings.ShowMSRP)
+                    {
+                    <div class="price_container">
+                        <div class="right">
+                            <span class="price_label">MSRP:</span>
+                            @if (detail.cp.MSRP != 0)
+                            {
+                                <span class="price">$@String.Format("{0:n2}", detail.cp.MSRP)</span>
+                            }
+                            else
+                            {
+                                <span>No MSRP available</span>
+                            }
+                        </div>
+                    </div>
+                    }
+                    @if (SiteSettings.ShowOptionDropdowns)
+                    {
+                        if(Options.Count > 0)
+                        {
+                            <div class="option_wrapper">
+                            @foreach (OptionSection opt in Options)
+                            {
+                                <div class="option_section">
+                                    <span class="section_title">@opt.Category.Name</span>
+                                    @if (opt.Skus.Count > 1)
+                                    {
+                                        <select class="optionselect">
+                                            @foreach (Sku s in opt.Skus)
+                                            {
+                                                <option value="@s.Code" id="@s.Code" title="@s.Name">@s.Name</option>
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <span>@opt.Skus.Select(x => x.Name).FirstOrDefault()</span>
+                                    }
+                                </div>
+                            }
+                            </div>
+                        }
+                    }
+                    
+                    @if (detail.cp.Description != "" && detail.cp.Description != null)
+                    {
+                        <div id="description" class="productdata_accordion">
+                            <div class="label"><span class="section_title">Description</span> <span class="expanded">-</span></div>
+                            <div class="content"><p>@detail.cp.Description</p></div>
+                        </div>
+                    }
+                    @if(product.Height > Convert.ToDecimal(.1) || product.Width > Convert.ToDecimal(.1) || product.LengthOrDepth > Convert.ToDecimal(.1)
+                        || product.Weight > Convert.ToDecimal(.1) || product.Volume > Convert.ToDecimal(.1) || (product.ArmHeight != null && product.ArmHeight > Convert.ToDecimal(.1)) ||
+                                (product.SeatHeight != null && product.SeatHeight > Convert.ToDecimal(.1)) || (product.COM != null && product.COM > Convert.ToDecimal(.1)))
+                    {
+                        <div id="specs" class="productdata_accordion">
+                            <div class="label"><span class="section_title">Technical Specs</span> <span class="expanded">-</span></div>
+                            <div class="content">
+                                <ul>
+                                    @if ((product.Height !=null && product.Height > Convert.ToDecimal(.1)) ||
+                                        (product.Width != null && product.Width > Convert.ToDecimal(.1)) ||
+                                        (product.LengthOrDepth != null && product.LengthOrDepth > Convert.ToDecimal(.1)))
+                                    {
+                                        <li><span class="lbl">Dimensions: </span>
+                                            @if (product.Width != null && product.Width > Convert.ToDecimal(.1))
+                                            {@String.Format("{0:n3}w ", product.Width)}
+                                            @if (product.Width != null && product.LengthOrDepth != null && product.Width > Convert.ToDecimal(.1) && product.LengthOrDepth > Convert.ToDecimal(.1))
+                                            {
+                                                <span>x&nbsp;</span>
+                                            }
+                                            @if (product.LengthOrDepth != null && product.LengthOrDepth > Convert.ToDecimal(.1))
+                                            {@String.Format(" {0:n3}d ", product.LengthOrDepth) }
+                                            @if (product.Height != null && product.LengthOrDepth != null && product.Height > Convert.ToDecimal(.1) && product.LengthOrDepth > Convert.ToDecimal(.1))
+                                            {
+                                                <span>x&nbsp;</span>
+                                            }
+                                            @if (product.Height != null && product.Height > Convert.ToDecimal(.1))
+                                            { @String.Format(" {0:n3}h", product.Height) }
+                                        </li>
+                                    }
+                                    @if (product.Weight != null && product.Weight > Convert.ToDecimal(.1))
+                                    {
+                                        <li><span class="lbl">Weight:</span>&nbsp;@String.Format("{0:n2}", product.Weight)</li>
+                                    }
+                                    @if (product.Volume != null && product.Volume > Convert.ToDecimal(.1))
+                                    {
+                                        <li><span class="lbl">Volume:</span>&nbsp;@String.Format("{0:n2}", product.Volume)</li>
+                                    }
+                                   
+                                        @if (product.ArmHeight.HasValue && product.ArmHeight.Value > Convert.ToDecimal(.1))
+                                        {
+                                            <li>
+                                                @String.Format(" Arm Height: {0:n3} ", product.ArmHeight)
+                                            </li>
+                                        }
+                                    
+                                    
+                                        @if (product.SeatHeight.HasValue && product.SeatHeight.Value > Convert.ToDecimal(.1))
+                                        {
+                                            <li>
+                                                @String.Format(" Seat Height: {0:n3} ", product.SeatHeight)
+                                            </li> 
+                                        }
+                                    
+                                    
+                                        @if (product.COM.HasValue && product.COM.Value > Convert.ToDecimal(.1))
+                                        {
+                                            <li>
+                                                @String.Format(" COM Yardage: {0:n3} ", product.COM)
+                                            </li> 
+                                        }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                    @if(documents.Count() > 0)
+                    {
+                        <div id="document" class="productdata_accordion">
+                            <div class="label"><span class="section_title">Downloads</span><span class="expanded">-</span></div>
+                            <div class="content">
+                                @foreach (string type in documents.Select(x => x.Type).ToList())
+                                {
+                                    <h4>@type</h4>
+                                    <ul>
+                                        @foreach (ProductDocument document in documents)
+                                        {
+                                            if (document.Type.Contains(type))
+                                            {
+                                                <li><a href="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/@document.ParentFolder/@document.URL">@document.Name</a></li>
+                                            }
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        </div>
+                    }
+                    </div>
+                <div class="icons">
+
+                    @if (SiteSettings.Facebook != null && SiteSettings.Facebook != "")
+                    {
+                        <a href="@SiteSettings.Facebook" target="_blank"><img src="~/Modules/Entiat.Products/Styles/fb.png" /></a>
+                    }
+                    @if (SiteSettings.Twitter != null && SiteSettings.Twitter != "")
+                    {
+                        <a href="@SiteSettings.Twitter" target="_blank"><img src="~/Modules/Entiat.Products/Styles/twitter.png" /></a>
+                    }
+                    @if (SiteSettings.Pinterest != null && SiteSettings.Pinterest != "")
+                    {
+                        <a href="@SiteSettings.Pinterest" target="_blank"><img src="~/Modules/Entiat.Products/Styles/pinterest.png" /></a>
+                    }
+                    @if (SiteSettings.Instagram != null && SiteSettings.Instagram != "")
+                    {
+                        <a href="@SiteSettings.Instagram" target="_blank"><img src="~/Modules/Entiat.Products/Styles/instagram.png" /></a>
+                    }
+                </div>
+                <div class="clear">&nbsp;</div>
+                <div class="full_col">
+                    @if(SiteSettings.EnableAmplience && Collection.Id > 0)
+                    {
+                        using(Script.Foot())
+                        {
+                            string set = string.Format("{0}_col_{1}_set", SiteSettings.ChannelId.ToString(), Collection.Id);
+                            <script type="text/javascript">
+                                $("#amp_collectionImages").html("");
+                                var imageset = "@set";
+                                var contents = document.getElementById('amp_collectionImages');
+                                amp.get({ "name": imageset , "type": "s" }, function (data) {
+                                    $("#amp_collectionImages").append("<h2>Collection Images</h2>");
+                                        amp.di.width(data[imageset], 190);
+                                        amp.genHTML(data[imageset], contents);
+                                        
+                                        EnlargeImageInSet();
+                                });
+                                function EnlargeImageInSet() {
+
+                                    $("#amp_collectionImages ul li img").each(function() {
+                                        var src = $(this).attr("src").substring(0, $(this).attr("src").indexOf('?')).replace("_MED","");
+                                        $(this).attr("onclick", "window.open('"+src+"'); return false;");
+                                    });
+                                }
+                            </script>
+                        }
+                        <div id="amp_collectionImages"></div>
+                    }
+                    else if (collectionImages != null && collectionImages.Count > 0)
+                    {
+                        <h2>Collection Images</h2>
+                        <ul id="collectionImages">
+                            @foreach(Image img in collectionImages)
+                            {
+                                string[] imgPath = @img.Url.Split('/');
+                            <li><a href="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/collection/@Collection.Id/LRG/@imgPath[imgPath.Length-1].Replace("_MED","")" target="_blank" title="Click for Full Image"><img src="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/collection/@Collection.Id/MED/@imgPath[imgPath.Length-1]" /></a></li>
+                            }
+                        </ul>
+                    }
+                    <div class="clear">&nbsp;</div>
+                    <div class="swatches">
+                        @foreach (OptionSection o in Options)
+                        {
+                            <h2>@o.Category.Name</h2>
+                            <ul>
+                                @foreach (Sku s in o.Skus)
+                                {
+                                    if (SiteSettings.EnableAmplience)
+                                    {
+                                        <li><img src="@string.Format("{0}/{1}_{2}_sw.jpg?w=80", SiteSettings.CDNImagesUrl, SiteSettings.ChannelId, s.Code.Trim().ToLower())" alt="@s.Name" title="@s.Name" /></li>
+                                    }
+                                    else
+                                    {
+                                        if (s.ImageUrl != null && s.ImageUrl != "")
+                                        {
+                                            <li><img src="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/swatch/80x80/@s.ImageUrl" alt="@s.Name" title="@s.Name" /></li>
+                                        }
+                                    }
+                                }
+                            </ul>
+                        }
+                    </div>
+
+                </div>
+              </div>
+         </div>
+    </main>
+</div>

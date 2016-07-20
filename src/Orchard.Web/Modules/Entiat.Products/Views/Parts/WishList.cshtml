@@ -1,0 +1,61 @@
+﻿@using System.Web.Mvc.Html
+@using Entiat.CustomSettings.Models
+@using Entiat.Products.ViewModels
+
+@{
+    EntiatSiteSettingsPart SiteSettings = (EntiatSiteSettingsPart)Model.CustomSettings;
+    PoolsideViewModel poolsideVM = (PoolsideViewModel)Model.poolsideVM;
+    Style.Include("WishList.css");
+
+
+}
+@using (Script.Foot())
+{
+    Script.Require("jQuery");
+    Script.Include("WishList.js");
+}
+<div class="row">
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "__AjaxAntiForgeryForm" }))
+{
+    @Html.AntiForgeryToken()
+}
+    
+    <div class="col-md-10">
+        <h2>Products</h2>
+        <p>You currently have (@poolsideVM.PoolsideProducts.Count) Products in "My Poolside" @*<a href="#" id="allWishListItemsEMail" class="emaiAll">Email all items in Wish List</a>*@</p>
+        <div class="poolsideCollections">
+            @foreach (var product in poolsideVM.PoolsideProducts)
+            {
+                <div class="poolsideCollectionItem col-sm-4 col-md-4">
+                    <div class="itemImg">
+                        @if (SiteSettings.EnableAmplience)
+                        {
+                            <img src="@string.Format("{0}/{1}_{2}.jpg?w=425", SiteSettings.CDNImagesUrl, SiteSettings.ChannelId, product.channelProduct.ID.ToString())" alt="@product.channelProduct.Name" />
+
+                        }
+                        else
+                        {
+                            <img src="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/main/@product.ImageUrl" />
+
+                        }
+                    </div>
+                    <div class="itemDetails">
+                        <div class="itemTitle">
+                            <a href="~/product/@product.channelProduct.ID">@product.channelProduct.Name</a>
+                        </div>
+                        <div class="itemModelNum">
+                            Model Number: @product.channelProduct.PartNumber
+                        </div>
+                        <div class="itemEmailRemove">
+                            <div class="remove">
+                                @Html.ActionLink("Remove Item", "RemoveMyPoolsideProduct", "ProductDetail", new { channelproductid = product.channelProduct.ID }, null)
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

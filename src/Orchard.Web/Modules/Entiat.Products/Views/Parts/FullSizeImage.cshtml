@@ -1,0 +1,28 @@
+﻿@using Bj.Essentials.Entities
+@using Entiat.CustomSettings.Models
+@{
+    Sku sku = (Sku)Model.Sku;
+    Image img = (Image)Model.Image;
+    EntiatSiteSettingsPart settings = (EntiatSiteSettingsPart)Model.CustomSettings;
+    Layout.Title = T(sku.Name).ToString();
+
+}
+
+<div id="full-size-option">
+    <h2 id="name">@sku.Name</h2>
+    <div id="code">Sku: @sku.Code</div>
+    <div id="grade">@if (sku.Grade != null && sku.Grade != "")
+    {<span>Grade:  </span>@sku.Grade}</div>
+    <p>
+        <div id="img">
+            @if (settings.EnableAmplience)
+            {
+                <img src="@string.Format("{0}/{1}_{2}_sw.jpg", settings.CDNImagesUrl, settings.ChannelId, sku.Code.Trim().ToLower())" alt="@sku.Name" />
+            }
+            else
+            {
+                <img src="@Model.CDN/channel/@Model.Channel/product/swatch/@sku.ImageUrl" alt="@sku.Name" style="max-width:800px;max-height:800px;" />
+            }
+        </div>
+    </p>
+</div>

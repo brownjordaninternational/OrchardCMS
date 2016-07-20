@@ -1,0 +1,111 @@
+﻿h1 {
+    font-family: 'FuturaBk','Muli','Helvetica Neue', Arial, Helvetica, sans-serif;
+    text-transform:uppercase;
+    font-size:30px;
+}
+.page-size-options {display:inline-block;}
+#default_layout .pager {font-family:'FuturaBk','Muli',sans-serif;}
+#default_layout .page-results {margin:0;}
+
+#default_layout .products h4 {
+        color: #003768;
+    }
+
+  
+#default_layout main {margin-bottom:20px;}
+#default_layout .clear {clear:both;}
+/*-----------------------------------FEATURE SECTION-------------------------------------------------*/
+#feature .col-2 {
+    width:45%;
+    margin:0 1%;
+    display:inline-block;
+    vertical-align:middle;
+}
+#feature .img-wrapper {
+    border:1px solid #e3e3e3;
+    padding:3px;
+}
+#feature .img-wrapper img {
+    width:100%;
+}
+    ##default_layout .col_1 {
+        float: left;
+        width: 35%;
+    }
+
+    ##default_layout .col_2 {
+        float: left;
+        margin-left: 3%;
+        width: 60%;
+    }
+/*-----------------------------------------3 PRODUCTS PER ROW------------------------------------------*/
+#default_layout .products .item-3 {
+        width: 30%;
+        margin-right: 2%;
+        float: left;
+        list-style: none;
+        text-align: center;
+}
+#default_layout .products .item-3 .image_container {
+    width:100%;
+    height:180px;
+}
+#default_layout .products .item-3 img {
+            display: block;
+            margin: 0 auto;
+            position: relative;
+            max-width:100%;
+           max-height:160px;
+            width:auto;
+            height:auto;
+        }
+
+/*-----------------------------------------4 PRODUCTS PER ROW------------------------------------------*/
+#default_layout .products .item-4 {
+        width: 20%;
+        margin-right: 2%;
+        float: left;
+        list-style: none;
+        text-align: center;
+}
+#default_layout .products .item-4 .image_container {
+    width:100%;
+    height:180px;
+}
+#default_layout .products .item-4 img {
+             display: block;
+            margin: 0 auto;
+            position: relative;
+            max-width:100%;
+           max-height:160px;
+            width:auto;
+            height:auto;
+        }
+
+/*------------------------------------------FILTERS------------------------------------------------------*/
+#collectionpage ul 
+    .ui-widget-header {
+        background: none;
+        border-bottom: 1px solid #ccc;
+        border-top: 0;
+        border-left: 0;
+        border-right: 0;
+    }
+
+
+
+    #collectionpage .modelnumber {
+        margin-bottom: 15px;
+    }
+
+   
+	   .products #noResultsMsg {
+        text-align:center;
+        margin-top:50px;
+        font-size:22px;
+        font-weight:bold;
+        min-height:200px;
+    }
+    
+
+      

@@ -1,0 +1,9 @@
+﻿#block_layout .right {float:right;}
+#block_layout #numOfProducts {margin-top:10px;}
+#block_layout .page_title h1 {display:inline-block;}
+#block_layout .prodGroup {background-color:#f3f3f3; padding:8px 15px;}
+#block_layout .text_container {padding:10px 15px; min-height:80px;}
+#block_layout .col-sm-3 img, #block_layout .col-sm-4 img {max-height:200px; max-width:100%; display:block; margin:0 auto;}
+#block_layout .col-sm-3 .text_container, #block_layout .col-sm-4 .text_container {text-align:center;}
+#block_layout .text_container h4, #block_layout .text_container .partnum {font-size:13px;}
+#block_layout .col-sm-3 .item,#block_layout .col-sm-4 .item {margin-bottom:20px;}

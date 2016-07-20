@@ -1,0 +1,8 @@
+﻿Name: Entiat Products Menu Item
+AntiForgery: enabled
+Author: Brown Jordan International
+Version: 1.0
+OrchardVersion: 1.9.1
+Description: When enabled, ability to dynamically build dropdown link based on categories in database.
+Category:Entiat
+Dependencies: Entiat.CustomSettings

@@ -1,0 +1,125 @@
+﻿@using Bj.Essentials.Entities;
+@using Entiat.Products.ViewModels;
+@using Entiat.CustomSettings.Models;
+@{
+    Style.Require("CatalogBlockStyle");
+    CatalogViewModel m = (CatalogViewModel)Model.CatalogViewModel;
+    EntiatSiteSettingsPart settings = (EntiatSiteSettingsPart)Model.CustomSettings;
+    int count = 0;
+}
+
+@if (m.TotalNumberOfProducts == 0)
+{
+    <div id="block_layout">
+        <main>
+            <div class="page_title">
+                <h1>@m.Name</h1>
+            </div>
+                <div id="noResultsMsg">There are no products that match your selection.</div>
+       </main>
+    </div>
+}
+else
+{
+    <div id="block_layout">
+        <main>
+            <div class="page_title">
+                <h1>@m.Name</h1>
+                <div class="right" id="numOfProducts">@m.TotalNumberOfProducts Available</div>
+            </div>
+            <div class="products">
+                @if (@settings.GroupByProductGroup)
+                {
+                    List<ProductDetail> products = m.ProductDetails.GroupBy(x => new { x.ProductGroup }).
+                        Select(y => new ProductDetail()
+                        {
+                            ProductGroup = y.Key.ProductGroup,
+                            DetailList = y.OrderBy(x=>x.cp.PartNumber).ToList()
+                        }).ToList();
+                    foreach(ProductDetail group in products)
+                    {
+                        count = 0;
+                        <h4 class="prodGroup">@group.ProductGroup</h4>
+                        foreach (ProductDetail detail in group.DetailList)
+                        {
+
+                            <div class="item-@settings.ProductsPerRow">
+
+                                <a href="@m.Id/product/@detail.ChannelProductId">
+                                    <div class="overlay"></div>
+                                    <div class="image_container">
+                                        @if (detail.ImageUrl != null && detail.ImageUrl != "")
+                                        {
+                                            //replace main
+                                            <img src="@m.CDNPath/channel/@m.Channel/product/main/@detail.ImageUrl" />
+                                        }
+                                        else
+                                        {
+                                            <img src="@m.CDNPath/channel/@m.Channel/product/main/placeholder.jpg" />
+                                        }
+                                    </div>
+                                    <div class="text_container">
+                                        <h4>@detail.ProductName</h4>
+                                        @if (settings.ShowModelNum)
+                                        {
+                                            <div class="partnum"><span>Model #:</span>@detail.cp.PartNumber</div>
+                                        }
+                                    </div>
+
+                                </a>
+
+                            </div>
+                            @*if (count % settings.ProductsPerRow == settings.ProductsPerRow - 1)
+    {
+        <div class="clear">&nbsp;</div>
+        }
+        count += 1;*@
+
+                        }
+
+                        <div class="clear">&nbsp;</div>
+                    }
+                }
+                else
+                {
+                    foreach (ProductDetail detail in m.ProductDetails)
+                    {
+
+                        <div class="item-@settings.ProductsPerRow">
+
+                            <a href="@m.Id/product/@detail.ChannelProductId">
+                                <div class="overlay"></div>
+                                <div class="image_container">
+                                    @if (detail.ImageUrl != null && detail.ImageUrl != "")
+                                    {
+                                        //replace main
+                                        <img src="@m.CDNPath/channel/@m.Channel/product/main/@detail.ImageUrl" />
+                                    }
+                                    else
+                                    {
+                                        <img src="@m.CDNPath/channel/@m.Channel/product/main/placeholder.jpg" />
+                                    }
+                                </div>
+                                <div class="text_container">
+                                    <h4>@detail.ProductName</h4>
+                                    @if (settings.ShowModelNum)
+                                    {
+                                        <div class="partnum"><span>Model #:</span>@detail.cp.PartNumber</div>
+                                    }
+                                </div>
+
+                            </a>
+
+                        </div>
+                        @*if (count % settings.ProductsPerRow == settings.ProductsPerRow - 1)
+                        {
+                            <div class="clear">&nbsp;</div>
+                        }
+                        count += 1;*@
+
+                    }
+                }
+            </div>
+        </main>
+    </div>
+}

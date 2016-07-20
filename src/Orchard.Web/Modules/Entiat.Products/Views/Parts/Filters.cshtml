@@ -1,0 +1,96 @@
+﻿@using Bj.Essentials.Entities;
+@using Entiat.Products.ViewModels;
+@using Entiat.Products.Models;
+@{
+
+    Style.Require("CustomCatalogStyle");
+    FilterViewModel m = (FilterViewModel)Model.FilterSection;
+
+}
+@if (m.Filters.Count() > 0)
+{
+    <div id="filter">
+        <h3>Refine By:</h3>
+        @foreach (FilterSection s in m.Filters)
+        {
+            <h4>@s.FilterLabel</h4>
+            <ul class="filtersection">
+                @foreach (Sku sku in s.Skus)
+                {
+                    <li class="filteroption"><input type="checkbox" value="@s.FilterLabel.Replace(" ","_")-@sku.OptionGroup-@sku.Id" /> @sku.Name</li>
+                }
+            </ul>
+        }
+        <div class="clear">&nbsp;</div>
+        <div id="clearfilterbtn" class="center">Clear Filters</div>
+    </div>
+}
+
+@using (Script.Foot())
+{
+    <script type="text/javascript">
+        $('#clearfilterbtn').click(function () {
+            $('#filter input:checkbox').removeAttr('checked');
+            var ids = [];
+            GetFilteredProducts(JSON.stringify(ids));
+        });
+
+        //to minimize long option lists
+        $('#filter ul').each(function () {
+            var len = $(this).find('li').length;
+            if (len > 5) {
+                $(this).children("li:eq(4)").after("<li class='expand'><span class='center'>Expand...</span></li>");
+                $(this).append("<li class='collapse'><span class='center'>Hide...</span></li>");
+                $(this).children().slice(6).hide();
+            }
+        });
+        $(".expand").each(function () {
+            $(this).click(function () {
+                var filter = $(this).parent();
+                filter.children().show();
+                $(this).hide();
+            });
+        });
+        $(".collapse").each(function () {
+            $(this).click(function () {
+                var filter = $(this).parent();
+                filter.children().slice(6).hide();
+                filter.children(".expand").show();
+            });
+        });
+
+        //if any checkbox changes
+        $('input[type="checkbox"]').change(function () {
+            var selectedids = [];
+            $("input[type=checkbox]:checked").each(function () {
+                var val = this.value.split("-");
+                selectedids.push({
+                    CategoryName: val[0],
+                    OptionGroupId:val[1],
+                    SkuId:val[2]
+                });
+            });
+            var ids = JSON.stringify(selectedids);
+            GetFilteredProducts(ids);
+            return false;
+        });
+        function GetFilteredProducts(ids) {
+            $.ajax({
+                type:"GET",
+                url:"@Url.Action("FilterProductsFor" + m.PageType, "Product")",
+                data:{ filters: ids, currentid:@m.PageTypeId },
+                datatype:JSON,
+            beforeSend:function () {
+                $('.products').html("<img src='@Href("~/Modules/Entiat.Products/Styles/spin.gif")' />");
+            },
+            error: function (xhr, status, error) {
+
+            },
+            success:function(data) {
+                $(".products").html(data);
+            }
+            });
+
+        }
+    </script>
+}

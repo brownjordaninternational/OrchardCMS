@@ -1,0 +1,156 @@
+﻿@using Bj.Essentials.Entities;
+@using Entiat.Products.ViewModels;
+@using Entiat.CustomSettings.Models;
+@{
+    Style.Include("blockCatalog.css");
+    CatalogViewModel m = (CatalogViewModel)Model.CatalogViewModel;
+    EntiatSiteSettingsPart settings = (EntiatSiteSettingsPart)Model.CustomSettings;
+    int bootstrap = 0;
+    if (settings.ProductsPerRow == 3)
+    {
+        bootstrap = 4;
+    }
+    else
+    {
+        bootstrap = 3;
+    }
+}
+
+@if (m.TotalNumberOfProducts == 0)
+{
+    <div id="block_layout">
+        <main>
+            <div class="page_title">
+                <h1>@m.Name</h1>
+            </div>
+            <div id="noResultsMsg">There are no products that match your selection.</div>
+        </main>
+    </div>
+}
+else
+{
+    <div id="block_layout" class="col-sm-12">
+        <main>
+            <div class="row">
+                <div class="page_title">
+                    <h1 class="col-sm-12">@m.Name</h1>
+                </div>
+                @if (settings.ShowPager)
+                {
+                    <div class="col-sm-12">
+                        @if (m.EndPosition != m.TotalNumberOfProducts)
+                        {
+                            <div class="page-results">@T("Showing items {0} - {1} of {2}", m.StartPosition, m.EndPosition, m.TotalNumberOfProducts)</div>
+                        }
+                        else
+                        {
+                            <div class="page-results">@T("Showing all {0} items", m.TotalNumberOfProducts)</div>
+                        }
+                        <div class="pager">@Display(m.Pager)</div>
+                    </div>
+                }
+            </div>
+            <div class="products">
+                @if (settings.GroupByProductGroup)
+                {
+                    List<ProductDetail> products = m.ProductDetails.GroupBy(x => new { x.ProductGroup }).
+                        Select(y => new ProductDetail()
+                        {
+                            ProductGroup = y.Key.ProductGroup,
+                            DetailList = y.OrderBy(x => x.cp.PartNumber).ToList()
+                        }).ToList();
+                    foreach (ProductDetail group in products)
+                    {
+                        
+                        <h4 class="prodGroup">@group.ProductGroup</h4>
+                        <div class="row">
+                        @foreach (ProductDetail detail in group.DetailList)
+                        {
+
+                            <div class="col-sm-@bootstrap">
+                                <div class="item col-sm-12">
+                                    <a href="@m.Id/product/@detail.cp.ID">
+                                        <div class="overlay"></div>
+                                        <div class="image_container">
+                                            @if (!settings.EnableAmplience)
+                                            {
+                                                if (detail.ImageUrl != null && detail.ImageUrl != "")
+                                                {
+
+                                                    <img src="@m.CDNPath/channel/@m.Channel/product/main/@detail.ImageUrl" />
+                                                }
+                                                else
+                                                {
+                                                    <img src="@m.CDNPath/channel/@m.Channel/product/main/placeholder.jpg" />
+                                                }
+                                            }
+                                            else
+                                            {
+                                                string imgWidth = "540";
+                                                <img src="@string.Format("{0}/{1}_{2}.jpg?w={3}",m.CDNPath,m.Channel,detail.cp.ID.ToString(),imgWidth)" alt="@detail.cp.Name" />
+                                            }
+                                        </div>
+                                        <div class="text_container">
+                                            @if (!settings.HideProductName){<h4> @detail.cp.Name </h4>}
+                                            @if (settings.ShowModelNum)
+                                            {
+                                                <div class="partnum">@detail.cp.PartNumber</div>
+                                            }
+                                        </div>
+
+                                    </a>
+                                </div>
+                            </div>
+
+                        }
+                        </div>
+                    }
+                }
+                else
+                {
+                    foreach (ProductDetail detail in m.ProductDetails)
+                    {
+
+                        <div class="col-sm-@bootstrap">
+                            <div class="item col-sm-12">
+                                <a href="@m.Id/product/@detail.cp.ID">
+                                    <div class="overlay"></div>
+                                    <div class="image_container">
+                                        @if (!settings.EnableAmplience)
+                                        {
+                                            if (detail.ImageUrl != null && detail.ImageUrl != "")
+                                            {
+
+                                                <img src="@m.CDNPath/channel/@m.Channel/product/main/@detail.ImageUrl" />
+                                            }
+                                            else
+                                            {
+                                                <img src="@m.CDNPath/channel/@m.Channel/product/main/placeholder.jpg" />
+                                            }
+                                        }
+                                        else
+                                        {
+                                            string imgWidth = "540";
+                                            <img src="@string.Format("{0}/{1}_{2}.jpg?w={3}",m.CDNPath,m.Channel,detail.cp.ID.ToString(),imgWidth)" alt="@detail.cp.Name" />
+                                        }
+                                    </div>
+                                    <div class="text_container">
+                                        @if(!settings.HideProductName){
+                                        <h4>@detail.cp.Name</h4>
+                                        }
+                                        @if (settings.ShowModelNum)
+                                        {
+                                            <div class="partnum"><span>Model #:</span>@detail.cp.PartNumber</div>
+                                        }
+                                    </div>
+
+                                </a>
+
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </main>
+    </div>
+}

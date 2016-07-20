@@ -1,0 +1,175 @@
+﻿@using Bj.Essentials.Entities;
+@using Entiat.Products.ViewModels;
+@using Entiat.CustomSettings.Models;
+@{
+    Style.Require("CustomCatalogStyle");
+    CatalogViewModel m = (CatalogViewModel)Model.CatalogViewModel;
+    EntiatSiteSettingsPart settings = (EntiatSiteSettingsPart)Model.CustomSettings;
+    int count = 0;
+}
+
+@if (m.TotalNumberOfProducts == 0)
+{
+    <div id="default_layout">
+        <main>
+            <div id="content">
+                <div class="page_title">
+                    @if (m.FeatureEnabled == false)
+                    {<h1>@m.Name</h1>}
+                    else
+                    {
+                        <h2>@m.Name</h2>
+                    }
+                </div>
+            </div>
+            <div id="noResultsMsg">There are no products that match your selection.</div>
+        </main>
+    </div>
+}
+else
+{
+    <div id="default_layout">
+        <main>
+            <div id="content">
+                <div class="page_title">
+                    @if (m.FeatureEnabled == false)
+                {<h1>@m.Name</h1>}
+                else
+                {
+                        <h2>@m.Name</h2>
+                    }
+                </div>
+            </div>
+            <div class="products">
+            @if (settings.ShowPager)
+            {
+                <div class="top_options">
+                    @if (m.EndPosition != m.TotalNumberOfProducts)
+                    {
+                        <div class="page-results">@T("Showing items {0} - {1} of {2}", m.StartPosition, m.EndPosition, m.TotalNumberOfProducts)</div>
+                    }
+                    else
+                    {
+                        <div class="page-results">@T("Showing all {0} items", m.TotalNumberOfProducts)</div>
+                    }
+                    <div class="pager">@Display(m.Pager)</div>
+                </div>
+            }
+                <hr />
+                @if (settings.GroupByProductGroup)
+                {
+                    List<ProductDetail> products = m.ProductDetails.GroupBy(x => new { x.ProductGroup }).
+                                   Select(y => new ProductDetail()
+                                   {
+                                       ProductGroup = y.Key.ProductGroup,
+                                       DetailList = y.OrderBy(x => x.cp.PartNumber).ToList()
+                                   }).ToList();
+                    foreach (ProductDetail group in products)
+                    {
+                        <h4 class="prodGroup">@group.ProductGroup</h4>
+                        foreach (ProductDetail detail in group.DetailList)
+                        {
+                            <div class="item-@settings.ProductsPerRow">
+                                <a href="@m.Id/product/@detail.cp.ID">
+                                    <div class="image_container">
+
+                                        @if (!settings.EnableAmplience)
+                                        {
+                                            if (detail.ImageUrl != null && detail.ImageUrl != "")
+                                            {
+
+                                            <img src="@m.CDNPath/channel/@m.Channel/product/main/@detail.ImageUrl" />
+                                            }
+                                            else
+                                            {
+                                            <img src="@m.CDNPath/channel/@m.Channel/product/main/placeholder.jpg" />
+                                            }
+                                        }
+                                        else
+                                        {
+                                            string imgWidth = "310";
+                                            if(settings.ProductsPerRow == 4) { imgWidth = "150"; }
+                                            <img src="@string.Format("{0}/{1}_{2}.jpg?w={3}",m.CDNPath,m.Channel,detail.cp.ID.ToString(),imgWidth)" alt="@detail.cp.Name" />
+                                        }
+                                    </div>
+                                    @if (!settings.HideProductName)
+                                    {<h4>@detail.cp.Name</h4>}
+                                    @if (settings.ShowModelNum)
+                                    {
+                                        <div class="partnum"><span>Model #:</span>@detail.cp.PartNumber</div>
+                                    }
+                                </a>
+                            </div>
+                            if (count % settings.ProductsPerRow == settings.ProductsPerRow - 1)
+                            {
+                                <div class="clear">&nbsp;</div>
+                                if (count < m.TotalNumberOfProducts - 1)
+                                {
+                                    <hr />
+                                }
+                            }
+                            count += 1;
+
+                        }
+                        <div class="clear">&nbsp;</div>
+                    }
+                }
+                else
+                {
+                    foreach (ProductDetail detail in m.ProductDetails)
+                    {
+                    <div class="item-@settings.ProductsPerRow">
+                        <a href="@m.Id/product/@detail.cp.ID">
+                            <div class="image_container">
+                                @if (!settings.EnableAmplience)
+                                {
+                                    if (detail.ImageUrl != null && detail.ImageUrl != "")
+                                    {
+
+                                        <img src="@m.CDNPath/channel/@m.Channel/product/main/@detail.ImageUrl" />
+                                    }
+                                    else
+                                    {
+                                        <img src="@m.CDNPath/channel/@m.Channel/product/main/placeholder.jpg" />
+                                    }
+                                }
+                                else
+                                {
+                                    string imgWidth = "310";
+                                    if (settings.ProductsPerRow == 4) { imgWidth = "150"; }
+                                    <img src="@string.Format("{0}/{1}_{2}.jpg?w={3}",m.CDNPath,m.Channel,detail.cp.ID.ToString(),imgWidth)" alt="@detail.cp.Name" />
+                                }
+                            </div>
+                            @if (!settings.HideProductName)
+                    {<h4>@detail.cp.Name</h4>}
+                            @if (settings.ShowModelNum)
+                    {
+                            <div class="partnum"><span>Model #:</span>@detail.cp.PartNumber</div>
+                            }
+                        </a>
+                    </div>
+                    if (count % settings.ProductsPerRow == settings.ProductsPerRow - 1)
+                    {
+                        <div class="clear">&nbsp;</div>
+                        if (count < m.TotalNumberOfProducts - 1)
+                        {
+                            <hr />
+                        }
+                    }
+                    count += 1;
+
+                }
+                <div class="clear">&nbsp;</div>
+                }
+            </div>
+                
+        </main>
+        @if (settings.ShowPager)
+        {
+        <div class="bottom_options">
+            <div class="pager">@Display(m.Pager)</div>
+        </div>
+        }
+    </div>
+}
+

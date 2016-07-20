@@ -1,0 +1,109 @@
+﻿@using Bj.Essentials.Entities;
+@using Entiat.CustomSettings.Models;
+@{ 
+    Style.Require("CustomCatalogStyle");
+
+}
+
+@{
+    IEnumerable<ChannelProducts> products = (IEnumerable<ChannelProducts>)Model.Products;
+    IEnumerable<Image> productImages = (IEnumerable<Image>)Model.ProductImages;
+    Collection collection = (Collection)Model.Collection;
+    EntiatSiteSettingsPart settings = (EntiatSiteSettingsPart)Model.CustomSettings;
+    int count = 0;
+}
+@if (products.Count() == 0)
+{
+    <div id="collectionpage">
+        <main>
+            <div id="content">
+                <div class="page_title">
+                    @if (collection != null)
+                    {
+                    if (collection.FeatureEnabled == false)
+                    {<h1>@collection.Name</h1>}
+                    else
+                    {
+                        <h2>@collection.Name</h2>
+                    }
+                }
+            </div>
+           </div>
+            <div id="noResultsMsg">There are no products that match your selection.</div>
+        </main>
+    </div>
+                    }
+                    else
+                    {
+                        <div id="collectionpage">
+                            <main>
+                                <div id="content">
+                                    <div class="page_title">
+                                            @if (collection != null)
+                                            {
+                                                if (collection.FeatureEnabled == false)
+                                                {<h1>@collection.Name</h1>}
+                                                else
+                                                {
+                                                    <h2>@collection.Name</h2>
+                                                }
+                                            }
+                                </div>
+                            </div>
+                            <div class="products">
+                                <div class="top_options">
+                                    <div id="product_count">
+                                        1-@products.Count() of @products.Count()
+                                    </div>
+                                </div>
+                                <hr />
+                                @foreach (ChannelProducts product in products)
+                                {
+                                        <div class="item">
+                                            <a href="~/product/@product.ID">
+                                                <div class="image_container">
+                                                    @{
+                                                        if (productImages.Count() > 0)
+                                                        {
+                                                            Image img = productImages.Where(x => x.Product == product.Product).FirstOrDefault();
+                                                            if (img != null)
+                                                            {
+                                                                //replace main 
+                                                                <img src="@settings.CDNImagesUrl/channel/@settings.ChannelId/product/main/@img.Url" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <img src="@settings.CDNImagesUrl/channel/@settings.ChannelId/product/main/placeholder.jpg" />
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <img src="@settings.CDNImagesUrl/channel/@settings.ChannelId/product/main/placeholder.jpg" />
+                                                        }
+
+                                                    }
+                                                </div>
+
+                                                <div class="image_container">
+                                                    @{
+                                                    }
+                                                </div>
+                                                <h4>@product.Name</h4>
+                                            </a>
+                                        </div>
+                                                        if (count % 4 == 3)
+                                                        {
+                                                            <div class="clear">&nbsp;</div>
+                                                            if (count < products.Count()-1)
+                                                            {
+                                                                <hr />
+                                                                }
+                                                            }
+                                                            count += 1;
+
+                                                        }
+
+                            </div>
+                        </main>
+                    </div>
+ }           

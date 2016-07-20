@@ -1,0 +1,47 @@
+﻿@using Entiat.Products.ViewModels;
+@using Entiat.CustomSettings.Models;
+
+@{
+    Style.Require("CustomCatalogStyle");
+    CatalogViewModel m = (CatalogViewModel)Model.CatalogViewModel;
+    EntiatSiteSettingsPart settings = (EntiatSiteSettingsPart)Model.CustomSettings;
+    int count = 0;
+}
+
+<div class="top_options">
+    <div id="product_count">1-@m.TotalNumberOfProducts of @m.TotalNumberOfProducts</div>
+</div>
+<hr />
+@foreach (ProductDetail detail in m.ProductDetails)
+{
+    <div class="item-@settings.ProductsPerRow">
+        <a href="@m.Id/product/@detail.ChannelProductId">
+            <div class="image_container">
+                @if (detail.ImageUrl != null && detail.ImageUrl != "")
+                {
+                    //replace main
+                    <img src="@m.CDNPath/channel/@m.Channel/product/main/@detail.ImageUrl" />
+                }
+                else
+                {
+                    <img src="@m.CDNPath/channel/@m.Channel/product/main/placeholder.jpg" />
+                }
+            </div>
+            <h4>@detail.ProductName</h4>
+            @if (settings.ShowModelNum)
+            {
+            <div class="partnum"><span>Model #:</span>@detail.cp.PartNumber</div>
+            }
+        </a>
+    </div>
+    if (count % settings.ProductsPerRow == settings.ProductsPerRow -1)
+    {
+        <div class="clear">&nbsp;</div>
+        if (count < m.TotalNumberOfProducts - 1)
+        {
+            <hr />
+        }
+    }
+    count += 1;
+
+}

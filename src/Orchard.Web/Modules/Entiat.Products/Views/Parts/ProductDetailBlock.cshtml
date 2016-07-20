@@ -1,0 +1,219 @@
+﻿@using Bj.Essentials.Entities;
+@using Entiat.CustomSettings.Models;
+@using Entiat.Products.Models;
+@using Entiat.Products.ViewModels;
+
+@using (Script.Foot())
+{
+    Script.Require("JQuery");
+    Script.Require("JQueryUI");
+    <script type="text/javascript">
+        $(function () {
+            var mainImg = $("#main_image img").attr("src");
+            $("#alt_images li img").on("click", function () {
+                var img = $(this).attr("src");
+                $("#main_image img").attr("src", img);
+            });
+        })
+        $("select.optionselect").on("change", function (data) {
+            var selimg = $("option:selected", this).attr("src");
+            var id = "#sel_swatch_" + $(this).attr("id");
+            if (selimg != null) {
+                $(id).html("<img src=" + selimg + " />");
+            }
+            else {
+                $(id).html("");
+            }
+        })
+        //]]>
+    </script>
+}
+@{ 
+    IEnumerable<Image> altImages = (IEnumerable<Image>)Model.AltImages;
+    ProductDetail detail = (ProductDetail)Model.ProductDetail;
+    Collection Collection = (Collection)Model.Collection;
+    Category Category = (Category)Model.Category;
+    EntiatSiteSettingsPart SiteSettings = (EntiatSiteSettingsPart)Model.CustomSettings;
+    Product product = (Product)Model.Product;
+    IEnumerable<ProductDocument> documents = (IEnumerable<ProductDocument>)Model.Documents;
+    List<Image> collectionImages = (List<Image>)Model.CollectionImages;
+    string bannerImg = (string)Model.Banner;
+    Style.Include("productpageblock.css");
+}
+
+<div id="productpage">
+    <main>
+        <div id="content">
+            <div class="container">
+                @if (bannerImg != null && bannerImg != "")
+                {
+                <div id="fullwidth_image">
+                  <img src="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/banner/@bannerImg" />
+                </div>
+                <div class="line"></div>
+                }
+                <div id="product_detail">
+                <div class="page_title"><h1>@detail.cp.PartNumber - @detail.cp.Name</h1></div>
+                <div class="icons">
+                    <a href="" onclick="window.open('@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/main/@detail.ImageUrl');return false;" target="_blank"><img src="~/Modules/Entiat.Products/Styles/enlarge-icon.png?width=30" alt="Enlarge Image" title="Enlarge Image" /></a>
+                        @if (SiteSettings.Facebook != null && SiteSettings.Facebook != "")
+                        {
+                            <a href="@SiteSettings.Facebook" target="_blank"><img src="~/Modules/Entiat.Products/Styles/fb.png" /></a>
+                        }
+                        @if (SiteSettings.Twitter != null && SiteSettings.Twitter != "")
+                        {
+                            <a href="@SiteSettings.Twitter" target="_blank"><img src="~/Modules/Entiat.Products/Styles/twitter.png" /></a>
+                        }
+                        @if (SiteSettings.Pinterest != null && SiteSettings.Pinterest != "")
+                        {
+                            <a href="@SiteSettings.Pinterest" target="_blank"><img src="~/Modules/Entiat.Products/Styles/pinterest.png" /></a>
+                        }
+                        @if (SiteSettings.Instagram != null && SiteSettings.Instagram != "")
+                        {
+                            <a href="@SiteSettings.Instagram" target="_blank"><img src="~/Modules/Entiat.Products/Styles/instagram.png" /></a>
+                        }
+                </div>
+                    @if (Collection.Name != "" && Collection.Name != null)
+                    {
+                        <div class="collection">See More in this Collection: <a href="~/collection/@Collection.Id"> @Collection.Name</a></div>
+                    }
+                <div class="col_1">
+                  
+
+                    @if (detail.cp.Description != "" && detail.cp.Description != null)
+                    {
+                        <div id="description">
+                            <div class="label"><span class="section_title">Product Description</span></div>
+                            <div class="content"><p>@detail.cp.Description</p></div>
+                        </div>
+                    }
+                    @if (product.Height > 0 || product.Width > 0 || product.LengthOrDepth > 0)
+                    {
+                        <div id="specs">
+                            <div class="label"><span class="section_title">Dimensions</span></div>
+                            <div class="content">
+                                <ul>
+                                    <li>
+                                        @if (product.Width != null && product.Width > Convert.ToDecimal(.1))
+                                        {@String.Format("{0:n1}w ", product.Width)}
+                                        @if (product.Width != null && product.LengthOrDepth != null && product.Width > Convert.ToDecimal(.1) && product.LengthOrDepth > Convert.ToDecimal(.1))
+                                        {
+                                            <span>x&nbsp;</span>
+                                        }
+                                        @if (product.LengthOrDepth != null && product.LengthOrDepth > Convert.ToDecimal(.1))
+                                        {@String.Format(" {0:n1}d ", product.LengthOrDepth) }
+                                        @if (product.Height != null && product.LengthOrDepth != null && product.Height > Convert.ToDecimal(.1) && product.LengthOrDepth > Convert.ToDecimal(.1))
+                                        {
+                                            <span>x&nbsp;</span>
+                                        }
+                                        @if (product.Height != null && product.Height > Convert.ToDecimal(.1))
+                                        { @String.Format(" {0:n1}h", product.Height) }
+                                    </li>
+                                    
+                                    @* Need to add data to tables
+                                    <li>Seat Height</li>
+                                    <li>Arm Height</li>
+                                    <li>COM Yardage</li>*@
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                    @if (SiteSettings.ShowMSRP)
+                    {
+                    <div class="price_container">
+                        <div class="label">
+                            <span class="section_title">MSRP:</span>
+                        </div>
+                        <div class="content">
+                            @if (detail.cp.MSRP != 0)
+                            {
+                                <div class="price">$@String.Format("{0:n2}", detail.cp.MSRP)</div>
+                            }
+                            else
+                            {
+                                <div>No MSRP available</div>
+                            }
+                        </div>
+                    </div>
+                    }
+                    @if (documents.Count() > 0)
+                    {
+                        <div id="document">
+                            <div class="label"><span class="section_title">Resources</span></div>
+                            <div class="content">
+                                <ul>
+                                    @foreach (ProductDocument document in documents)
+                                    {
+
+                                        <li><a href="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/@document.ParentFolder/@document.URL">@document.Name</a></li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="col_2">
+                   <div id="main_image">
+                       <img src="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/main/@detail.ImageUrl" />
+                   </div>
+                    @if (altImages.Count() > 0)
+                    {
+                        <div id="alt_images">
+                            <ul>
+                                @foreach (Image img in altImages)
+                                {
+                                    <li><img src="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/alt/@img.Url" /></li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                    
+                    @if (SiteSettings.ShowOptionDropdowns)
+                    {
+                        <hr />
+                        if (detail.Options.Count > 0)
+                        {
+                            <div class="option_wrapper">
+                                @foreach (ProductOption o in detail.Options)
+                                {
+                                    if (o.OptionSkus != null)
+                                    {
+                                        if (o.OptionSkus.Count > 1)
+                                        {
+                                            <div class="option_section">
+                                                <span class="section_title">@o.CategoryName : &nbsp;</span>
+
+                                                <select class="optionselect" id="@o.CategoryName.Replace(" ", "_")">
+                                                    <option value="">--Select--</option>
+                                                    @foreach (Sku s in o.OptionSkus)
+                                                    {
+                                                        if (s.ImageUrl == null || s.ImageUrl == "")
+                                                        {
+                                                            <option value="@s.Code" id="@s.Code" title="@s.Name">@s.Name</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@s.Code" id="@s.Code" title="@s.Name" src="@SiteSettings.CDNImagesUrl/channel/@SiteSettings.ChannelId/product/swatch/@s.ImageUrl">@s.Name</option>
+                                                        }
+                                                    }
+                                                </select>
+                                                <span class="swatchImg" id="sel_swatch_@o.CategoryName.Replace(" ", "_")"></span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="option_section"><span class="section_title">@o.CategoryName :&nbsp;</span><span>@o.OptionSkus.Select(x => x.Name).FirstOrDefault()</span></div>
+
+                                        }
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+                </div>           
+                <div class="clear">&nbsp;</div>
+                </div>
+              </div>
+         </div>
+    </main>
+</div>

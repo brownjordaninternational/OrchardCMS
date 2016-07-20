@@ -1,0 +1,8 @@
+﻿Name: Entiat Products Module
+AntiForgery: enabled
+Author: Brown Jordan International
+Version: 1.0
+OrchardVersion: 1.9.1
+Description: For catalog pages
+Category:Entiat
+Dependencies: Entiat.CustomSettings
